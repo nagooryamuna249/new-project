@@ -1,25 +1,29 @@
 pipeline {
     agent any 
     stages {
-        stage("git checkout") {
+        stage("maven build") {
+          when{
+              branch 'develop'
             steps {
-                git branch: 'main', credentialsId: 'javahome', url: 'https://github.com/nagooryamuna249/new-project'
+               echo 'maven build'
             }
         }
-        stage ("maven build") {
+        stage (" dev deploy") {
+         when{
+            branch 'develop'
             steps {
-                sh "mvn clean package"
+                echo 'dev deploy'
             }
         }
-        stage ("tomcat deploy") {
-            steps {
-                sshagent(['tomcat-dev']) {
-                 sh "scp -o StrictHostKeyChecking=no target/*.war ec2-user@172.31.15.240:/opt/tomcat9/webapps/"
-                 sh "ssh ec2-user@172.31.15.240 /opt/tomcat9/bin/shutdown.sh"
-                 sh "ssh ec2-user@172.31.15.240 /opt/tomcat9/bin/startup.sh"
-                }
-           }
-        }   
-    }
-}    
-    
+         stage (" test deploy") {
+            when{
+               branch 'test'
+            }
+              steps {
+                echo 'test deploy'
+            }
+        }
+     }
+  }
+       
+       
